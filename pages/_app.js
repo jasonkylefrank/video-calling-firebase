@@ -17,6 +17,10 @@ const GlobalStyle = createGlobalStyle`
   * {
     box-sizing: border-box;
   }
+
+  h2, h3, h4, h5, h6 {
+    font-weight: normal;
+  }
 `;
 
 const theme = {
