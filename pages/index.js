@@ -101,7 +101,7 @@ export default function Home() {
 
       <Main>
         <Title>
-          Video meower <span className="version">v1.0</span>
+          Video meower <span className="version">v1.01</span>
         </Title>
         
         <VideoArea
