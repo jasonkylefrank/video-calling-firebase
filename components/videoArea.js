@@ -33,23 +33,25 @@ export default function VideoArea({
         }                
     };
     // Once we have a chosen webcam, then do stuff with it
-    useEffect(async () => {
-        if (!chosenWebcam) {
-            return;
+    useEffect(() => {        
+        async function setupStreams() {
+            if (!chosenWebcam) {
+                return;
+            }
+    
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { deviceId: chosenWebcam.deviceId },
+                audio: true            
+            });
+            // Push tracks from local stream to peer connection
+            stream.getTracks().forEach((track) => peerConnection.addTrack(track));
+    
+            setLocalStream(stream);
+
+            //TODO... (other stuff)
         }
-
-        const stream = await navigator.mediaDevices.getUserMedia({
-            video: { deviceId: chosenWebcam.deviceId },
-            audio: true            
-        });
-        // Push tracks from local stream to peer connection
-        stream.getTracks().forEach((track) => peerConnection.addTrack(track));
-
-        setLocalStream(stream);
-
-        //TODO... (other stuff)
-
-    }, [chosenWebcam]);
+        setupStreams();
+    }, [chosenWebcam, peerConnection]);
 
     // Deal with the possibility of the user having multiple webcams that need to be picked from
     useEffect(() => {
