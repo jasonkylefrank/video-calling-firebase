@@ -33,8 +33,8 @@ const styledComponentsTheme = {
   }
 };
 
-console.log("In _app.js, process.env.NODE_ENV: ");
-console.log(process.env.NODE_ENV);
+//console.log("In _app.js, process.env.NODE_ENV: ");
+//console.log(process.env.NODE_ENV);
 
 const createMuiThemeForEnvironment = 
   process.env.NODE_ENV === 'production' ? 
