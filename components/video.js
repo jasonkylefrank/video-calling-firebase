@@ -11,6 +11,6 @@ export default function Video({ srcObject, ...props }) {
     }, [srcObject]);
     
     return(
-        <video ref={ref} autoPlay playsInline></video>
+        <video ref={ref} autoPlay playsInline {...props}></video>
     );
 };
