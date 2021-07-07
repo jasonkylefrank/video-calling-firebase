@@ -72,7 +72,7 @@ const Title = styled.h1`
     }
   }
 `;
-//#endregion
+//#endregion ---Styled Components---
 
 
 export default function Home() {

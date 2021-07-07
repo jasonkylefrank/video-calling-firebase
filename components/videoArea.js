@@ -70,7 +70,9 @@ export default function VideoArea({
             <VideosContainer>
                 <span>
                     <label>Local stream</label>
-                    <Video srcObject={localStream} />
+                    {/* Muted since we don't want to hear ourselves and it would
+                    cause feedback when demoing this via another video calling app */}
+                    <Video srcObject={localStream} muted={true} />
                 </span>
                 <span>
                     <label>Remote stream</label>                    
@@ -78,7 +80,12 @@ export default function VideoArea({
                 </span>
             </VideosContainer>
 
-            <Button variant="outlined" onClick={handleWebcamBtnClick}>Start webcam</Button>
+            <Button 
+                color="primary"
+                variant="outlined"
+                onClick={handleWebcamBtnClick}>
+                    Start webcam
+            </Button>
 
  
             <Dialog open={isWebcamDialogOpen}>
