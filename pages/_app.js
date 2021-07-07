@@ -1,4 +1,8 @@
 import { createGlobalStyle, ThemeProvider } from 'styled-components';
+import { createMuiTheme, MuiThemeProvider } from '@material-ui/core';
+import { unstable_createMuiStrictModeTheme } from '@material-ui/core';
+
+
 
 const GlobalStyle = createGlobalStyle`
   html,
@@ -23,19 +27,37 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
-const theme = {
+const styledComponentsTheme = {
   colors: {
     primary: '#0070f3'
   }
 };
 
+console.log("In _app.js, process.env.NODE_ENV: ");
+console.log(process.env.NODE_ENV);
+
+const createMuiThemeForEnvironment = 
+  process.env.NODE_ENV === 'production' ? 
+    createMuiTheme : 
+    // For dev environments, we need to use a newer version that solves the strict mode console warning for components like the Dialog.  See: https://github.com/mui-org/material-ui/issues/13394#issuecomment-815452717
+    unstable_createMuiStrictModeTheme;
+
+const muiTheme = createMuiThemeForEnvironment({
+  palette: {
+    primary: {
+      main: styledComponentsTheme.colors.primary
+    }
+  }
+});
 
 function MyApp({ Component, pageProps }) {
   return (
     <>
       <GlobalStyle />
-      <ThemeProvider theme={theme}>
-        <Component {...pageProps} />
+      <ThemeProvider theme={styledComponentsTheme}>
+        <MuiThemeProvider theme={muiTheme} >
+          <Component {...pageProps} />
+        </MuiThemeProvider>
       </ThemeProvider>
     </>
   ); 

@@ -80,7 +80,12 @@ export default function VideoArea({
                 </span>
             </VideosContainer>
 
-            <Button variant="outlined" onClick={handleWebcamBtnClick}>Start webcam</Button>
+            <Button 
+                color="primary"
+                variant="outlined"
+                onClick={handleWebcamBtnClick}>
+                    Start webcam
+            </Button>
 
  
             <Dialog open={isWebcamDialogOpen}>
