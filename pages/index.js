@@ -72,7 +72,7 @@ const Title = styled.h1`
     }
   }
 `;
-//#endregion
+//#endregion ---Styled Components---
 
 
 export default function Home() {
@@ -101,7 +101,7 @@ export default function Home() {
 
       <Main>
         <Title>
-          Video meower <span className="version">v1.0</span>
+          Meow caller <span className="version">v1.01</span>
         </Title>
         
         <VideoArea

@@ -33,23 +33,25 @@ export default function VideoArea({
         }                
     };
     // Once we have a chosen webcam, then do stuff with it
-    useEffect(async () => {
-        if (!chosenWebcam) {
-            return;
+    useEffect(() => {        
+        async function setupStreams() {
+            if (!chosenWebcam) {
+                return;
+            }
+    
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { deviceId: chosenWebcam.deviceId },
+                audio: true            
+            });
+            // Push tracks from local stream to peer connection
+            stream.getTracks().forEach((track) => peerConnection.addTrack(track));
+    
+            setLocalStream(stream);
+
+            //TODO... (other stuff)
         }
-
-        const stream = await navigator.mediaDevices.getUserMedia({
-            video: { deviceId: chosenWebcam.deviceId },
-            audio: true            
-        });
-        // Push tracks from local stream to peer connection
-        stream.getTracks().forEach((track) => peerConnection.addTrack(track));
-
-        setLocalStream(stream);
-
-        //TODO... (other stuff)
-
-    }, [chosenWebcam]);
+        setupStreams();
+    }, [chosenWebcam, peerConnection]);
 
     // Deal with the possibility of the user having multiple webcams that need to be picked from
     useEffect(() => {
@@ -68,7 +70,9 @@ export default function VideoArea({
             <VideosContainer>
                 <span>
                     <label>Local stream</label>
-                    <Video srcObject={localStream} />
+                    {/* Muted since we don't want to hear ourselves and it would
+                    cause feedback when demoing this via another video calling app */}
+                    <Video srcObject={localStream} muted={true} />
                 </span>
                 <span>
                     <label>Remote stream</label>                    
@@ -76,7 +80,12 @@ export default function VideoArea({
                 </span>
             </VideosContainer>
 
-            <Button variant="outlined" onClick={handleWebcamBtnClick}>Start webcam</Button>
+            <Button 
+                color="primary"
+                variant="outlined"
+                onClick={handleWebcamBtnClick}>
+                    Start webcam
+            </Button>
 
  
             <Dialog open={isWebcamDialogOpen}>
