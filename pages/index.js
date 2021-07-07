@@ -1,4 +1,6 @@
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
+import Image from 'next/image';
 import styled from 'styled-components';
 import dynamic from 'next/dynamic';
 // Must import firebase stuff dynamically like this to ensure that
@@ -72,10 +74,28 @@ const Title = styled.h1`
     }
   }
 `;
+
+const LogoImage = styled(Image)`
+  filter: grayscale(1);
+  display: inline-block;  
+
+  & + & {
+    ${'' /* For some reason margin is not taking effect. Something appears to be overriding any margin I set here (setting it to 0) */}
+    ${'' /* The selector seems fine though (see: https://github.com/styled-components/styled-components/issues/74#issuecomment-296757178) */}
+    ${'' /* margin-left: 48px; */}
+  }
+`;
+// A bit of a workaround b/c of the margin problem noted above
+const LogoSeparator = styled.span`
+  display: inline-block;
+  height: 20px;
+  width: 20px;
+`;
 //#endregion ---Styled Components---
 
 
 export default function Home() {
+  const logoSize = 24; // px
  
   const stunServers = {
     iceServers: [
@@ -85,10 +105,16 @@ export default function Home() {
     ],
     iceCandidatePoolSize: 10
   };
-  
-  // Global state
-  // TODO: Determine if this should occur in a useEffect()
-  const pc = !isRunningOnServer() && new RTCPeerConnection(stunServers);
+   
+  const [peerConnection, setPeerConnection] = useState(null);
+
+  useEffect(() => {
+    const pc = !isRunningOnServer() && new RTCPeerConnection(stunServers);
+    setPeerConnection(pc);
+    return () => {
+      // TODO: Any cleanup needed here?
+    }
+  }, []);
 
 
   return (
@@ -106,14 +132,30 @@ export default function Home() {
         
         <VideoArea
           firestore={firestore}
-          peerConnection={pc}
+          peerConnection={peerConnection}
         />
 
 
       </Main>
 
       <Footer>
-        Powered by&nbsp;<strong>WebRTC</strong>&nbsp;technology
+        Powered by
+          <LogoSeparator />
+          <LogoImage title="WebRTC" src="/webrtc-logo.png" width={logoSize} height={logoSize} />
+          <LogoSeparator />
+          <LogoImage title="Next.js" src="/nextjs-logo.svg" width={logoSize * 2.2} height={logoSize * 1.2} />
+          <LogoSeparator />
+          <LogoImage title="Styled Components" src="/styled-components-logo.png" width={logoSize} height={logoSize} />
+
+          <LogoSeparator />
+          <LogoImage title="Google Firebase" src="/firebase-logo.svg" width={logoSize} height={logoSize} />
+          <LogoSeparator />
+          <LogoImage title="Azure" src="/azure-logo.png" width={logoSize} height={logoSize} />
+
+          {/* <strong>WebRTC</strong>,&nbsp;
+          <strong>Google Firebase</strong>,&nbsp;&&nbsp;
+          <strong>Azure</strong> */}
+        {/* &nbsp;technologies */}
       </Footer>
     </Container>
   )
