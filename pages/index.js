@@ -72,7 +72,12 @@ const Title = styled.h1`
     }
   }
 `;
-//#endregion
+
+const Tagline = styled.label`
+  font-size: 11px
+  color: rgba(0,0,0,0.54);
+`;
+//#endregion ---Styled Components---
 
 
 export default function Home() {
@@ -103,6 +108,9 @@ export default function Home() {
         <Title>
           Video meower <span className="version">v1.01</span>
         </Title>
+        <Tagline>
+          This is a tagline added in a feature branch!
+        </Tagline>
         
         <VideoArea
           firestore={firestore}
