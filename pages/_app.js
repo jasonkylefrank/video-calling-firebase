@@ -1,6 +1,9 @@
 import { createGlobalStyle, ThemeProvider } from 'styled-components';
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core';
 import { unstable_createMuiStrictModeTheme } from '@material-ui/core';
+// Need this so we can tell Material UI to inject their styles
+//  NOT at the end of the head, thus allowing us to override their styles. See: https://gist.github.com/Danilo-Araujo-Silva/2ce11fd0540dcc7eb3ad3e67fd75d02a#gistcomment-2935337
+import { StylesProvider } from '@material-ui/styles';
 
 
 
@@ -55,9 +58,11 @@ function MyApp({ Component, pageProps }) {
     <>
       <GlobalStyle />
       <ThemeProvider theme={styledComponentsTheme}>
-        <MuiThemeProvider theme={muiTheme} >
-          <Component {...pageProps} />
-        </MuiThemeProvider>
+        <StylesProvider injectFirst>
+          <MuiThemeProvider theme={muiTheme} >
+            <Component {...pageProps} />
+          </MuiThemeProvider>
+        </StylesProvider>
       </ThemeProvider>
     </>
   ); 
