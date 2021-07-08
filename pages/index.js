@@ -1,15 +1,18 @@
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import styled from 'styled-components';
 import dynamic from 'next/dynamic';
 // Must import firebase stuff dynamically like this to ensure that
 //  it is only loaded client-side since it accesses browser-only APIs
 //  like the 'navigator'.  See https://nextjs.org/docs/advanced-features/dynamic-import#with-no-ssr
-const firestore = dynamic(
-  () => import('../firebase/firebaseInit'),
-  { ssr: false } // Don't load this on the server
-);
+// const firestore = dynamic(
+//   () => import('../firebase/firebaseInit'),
+//   { ssr: false } // Don't load this on the server.  https://nextjs.org/docs/advanced-features/dynamic-import#with-no-ssr
+// );
+
 import isRunningOnServer from '../utilities/isRunningOnServer';
 import VideoArea from '../components/videoArea';
+import InitiateCall from '../components/initiateCall';
 
 //#region Styled Components
 const Container = styled.div`
@@ -72,10 +75,43 @@ const Title = styled.h1`
     }
   }
 `;
+
+// I wanted to use Next.js's <Image> for this but it doesn't work with static exports.
+//  Next.js's <Image> provides some nice things like lazy-loading of your images, etc.
+const LogoImage = styled.img`
+  filter: grayscale(1);
+  display: inline-block;  
+
+  & + & {
+    ${'' /* For some reason margin is not taking effect. Something appears to be overriding any margin I set here (setting it to 0) */}
+    ${'' /* The selector seems fine though (see: https://github.com/styled-components/styled-components/issues/74#issuecomment-296757178) */}
+    ${'' /* margin-left: 48px; */}
+  }
+`;
+// A bit of a workaround b/c of the margin problem noted above
+const LogoSeparator = styled.span`
+  display: inline-block;
+  height: 20px;
+  width: 20px;
+`;
+
+const SectionSeparator = styled.div`
+  width: 60vw;
+  max-width: 760px;
+  border-bottom: 1px solid rgba(0,0,0,0.14);
+  margin: 36px 0 20px 0;
+`;
+
+const StyledInitiateCall = styled(InitiateCall)`
+  opacity: ${props => props.isWebcamInitialized ? 1.0 : 0.2};
+`;
 //#endregion ---Styled Components---
 
 
+
+
 export default function Home() {
+  const logoSize = 24; // px
  
   const stunServers = {
     iceServers: [
@@ -85,11 +121,40 @@ export default function Home() {
     ],
     iceCandidatePoolSize: 10
   };
-  
-  // Global state
-  // TODO: Determine if this should occur in a useEffect()
-  const pc = !isRunningOnServer() && new RTCPeerConnection(stunServers);
+   
+  const [peerConnection, setPeerConnection] = useState(null);
+  const [isWebcamInitialized, setIsWebcamInitialized] = useState(false);
+  const [firestore, setFirestore] = useState(null);
 
+  useEffect(() => {
+    const pc = !isRunningOnServer() && new RTCPeerConnection(stunServers);
+    setPeerConnection(pc);
+    // We need to require firestore inside a useEffect like this in
+    //  order to prevent the firebase initialization from running on the server.
+    //  Next.js's dynamic imports did work for this use-case, I think because 
+    //  we were not importing a react component. See: https://www.reddit.com/r/nextjs/comments/lagib3/im_having_a_hard_time_understanding_dynamic/glxz6u8?utm_source=share&utm_medium=web2x&context=3
+    const f = require('../firebase/firebaseInit').default; // Must include the ".default" when using require().  See: https://stackoverflow.com/a/43249395/718325
+    setFirestore(f);
+
+    return () => {
+      // TODO: Any cleanup needed here?
+    }
+  }, []);
+
+  //#region --- Debugging Firestore ---
+  async function printFirestoreData(collectionName) {
+    const querySnapshot = await firestore?.collection(collectionName).get();
+    console.log(`\nFirestore collection: "${collectionName}" currently contains: `);
+    querySnapshot?.forEach((doc) => { 
+      console.log(`${doc.id} =>`);
+      console.log(doc.data());
+    });
+  }
+
+  // useEffect(() => {
+  //   printFirestoreData('tests');
+  // }, [firestore]);
+  //#endregion --- Debugging Firestore ---
 
   return (
     <Container>
@@ -104,16 +169,41 @@ export default function Home() {
           Meow caller <span className="version">v1.01</span>
         </Title>
         
-        <VideoArea
-          firestore={firestore}
-          peerConnection={pc}
+        <VideoArea          
+          peerConnection={peerConnection}
+          setIsWebcamInitialized={setIsWebcamInitialized}
         />
 
+        <SectionSeparator />
+        <StyledInitiateCall
+          peerConnection={peerConnection}
+          isWebcamInitialized={isWebcamInitialized}
+          firestore={firestore}
+        />
+        {
+          
 
+        }
       </Main>
 
       <Footer>
-        Powered by&nbsp;<strong>WebRTC</strong>&nbsp;technology
+        Powered by
+          <LogoSeparator />
+          <LogoImage title="WebRTC" src="/webrtc-logo.png" width={logoSize} height={logoSize} />
+          <LogoSeparator />
+          <LogoImage title="Next.js" src="/nextjs-logo.svg" width={logoSize * 2.2} height={logoSize * 1.2} />
+          <LogoSeparator />
+          <LogoImage title="Styled Components" src="/styled-components-logo.png" width={logoSize} height={logoSize} />
+
+          <LogoSeparator />
+          <LogoImage title="Google Firebase" src="/firebase-logo.svg" width={logoSize} height={logoSize} />
+          <LogoSeparator />
+          <LogoImage title="Azure" src="/azure-logo.png" width={logoSize} height={logoSize} />
+
+          {/* <strong>WebRTC</strong>,&nbsp;
+          <strong>Google Firebase</strong>,&nbsp;&&nbsp;
+          <strong>Azure</strong> */}
+        {/* &nbsp;technologies */}
       </Footer>
     </Container>
   )
