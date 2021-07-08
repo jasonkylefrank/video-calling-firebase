@@ -7,13 +7,25 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Dialog from '@material-ui/core/Dialog';
 import Button from '@material-ui/core/Button';
 import Video from '../components/video';
-import isRunningOnServer from '../utilities/isRunningOnServer';
+import SectionHeader from '../components/sectionHeader';
 
 
 //#region ---Styled Components---
 const VideosContainer = styled.div`
     display: flex;
     text-align: center;
+
+    ${({ localStream }) => {
+        if (localStream) 
+            return `
+                height: 100%;
+                opacity: 1;
+            `
+        else return `
+                height: 36px;
+                opacity: 0;
+            `
+    }}
 `;
 const VideoContainer = styled.span`
     display: flex;
@@ -31,8 +43,8 @@ const VideoLabel = styled.label`
 //#endregion ---Styled Components---
 
 export default function VideoArea({
-    firestore,
-    peerConnection
+    peerConnection,
+    setIsWebcamInitialized
 }) {
     const [localStream, setLocalStream] = useState(null);
     const [remoteStream, setRemoteStream] = useState(null);
@@ -70,7 +82,7 @@ export default function VideoArea({
 
                 if (!remoteStream) {
                     setRemoteStream(new MediaStream(stream.getTracks()));
-                    // TODO:  Determine if a need this line (it would probably be in a useEffect that is
+                    // TODO:  Determine if I need this next line (it would probably be in a useEffect that is
                     //        watching for changes on the remoteStream state).  I think the above constructor
                     //        call will accomplish our goal.
                     //stream.getTracks().forEach((track) => remoteStream.addTrack(track));
@@ -90,12 +102,18 @@ export default function VideoArea({
         }
     }, [availableWebcams, chosenWebcam]);
 
+    // Signal to the outer component that streams have been initialized
+    useEffect(() => {
+        if (localStream) {
+            setIsWebcamInitialized(true);            
+        }
+    }, [localStream]);
 
     return (
         <>
-            <h2>1. Start your webcam</h2>
+            <SectionHeader>1. Start your webcam</SectionHeader>
 
-            <VideosContainer>
+            <VideosContainer localStream={localStream}>
                 <VideoContainer>
                     <VideoLabel>Local stream</VideoLabel>
                     {/* Muted since we don't want to hear ourselves and it would
@@ -110,7 +128,7 @@ export default function VideoArea({
 
             <Button 
                 color="primary"
-                variant="outlined"
+                //variant="outlined"
                 onClick={handleWebcamBtnClick}
                 disabled={localStream !== null}>
                     Start webcam
