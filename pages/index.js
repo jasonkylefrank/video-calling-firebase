@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
-import Image from 'next/image';
 import styled from 'styled-components';
 import dynamic from 'next/dynamic';
 // Must import firebase stuff dynamically like this to ensure that
@@ -77,7 +76,9 @@ const Title = styled.h1`
   }
 `;
 
-const LogoImage = styled(Image)`
+// I wanted to use Next.js's <Image> for this but it doesn't work with static exports.
+//  Next.js's <Image> provides some nice things like lazy-loading of your images, etc.
+const LogoImage = styled.img`
   filter: grayscale(1);
   display: inline-block;  
 

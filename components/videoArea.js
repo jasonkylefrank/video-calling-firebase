@@ -82,15 +82,11 @@ export default function VideoArea({
 
                 if (!remoteStream) {
                     setRemoteStream(new MediaStream(stream.getTracks()));
-                    // TODO:  Determine if I need this next line (it would probably be in a useEffect that is
-                    //        watching for changes on the remoteStream state).  I think the above constructor
-                    //        call will accomplish our goal.
-                    //stream.getTracks().forEach((track) => remoteStream.addTrack(track));
                 }
             };
         }
         setupStreams();
-    }, [chosenWebcam, peerConnection]);
+    }, [chosenWebcam, peerConnection, remoteStream]);
 
     // Deal with the possibility of the user having multiple webcams that need to be picked from
     useEffect(() => {
@@ -107,7 +103,7 @@ export default function VideoArea({
         if (localStream) {
             setIsWebcamInitialized(true);            
         }
-    }, [localStream]);
+    }, [localStream, setIsWebcamInitialized]);
 
     return (
         <>
