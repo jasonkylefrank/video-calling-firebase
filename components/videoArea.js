@@ -7,24 +7,53 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Dialog from '@material-ui/core/Dialog';
 import Button from '@material-ui/core/Button';
 import Video from '../components/video';
+import SectionHeader from '../components/sectionHeader';
 
+
+//#region ---Styled Components---
 const VideosContainer = styled.div`
     display: flex;
     text-align: center;
+
+    ${({ localStream }) => {
+        if (localStream) 
+            return `
+                height: 100%;
+                opacity: 1;
+            `
+        else return `
+                height: 36px;
+                opacity: 0;
+            `
+    }}
 `;
+const VideoContainer = styled.span`
+    display: flex;
+    flex-direction: column;
+`;
+const StyledVideo = styled(Video)`
+    margin: 16px;
+    max-height: 400px;
+    max-width: 45vw;
+`;
+const VideoLabel = styled.label`
+    font-size: 14px;
+    color: rgba(0,0,0,0.54);
+`;
+//#endregion ---Styled Components---
 
 export default function VideoArea({
-    firestore,
-    peerConnection
+    peerConnection,
+    setIsWebcamInitialized
 }) {
-    const [localStream, setLocalStream] = useState();
-    const [remoteStream, setRemoteStream] = useState();
+    const [localStream, setLocalStream] = useState(null);
+    const [remoteStream, setRemoteStream] = useState(null);
+
     const [availableWebcams, setAvailableWebcams] = useState();
     const [isWebcamDialogOpen, setIsWebcamDialogOpen] = useState(false);
     const [chosenWebcam, setChosenWebcam] = useState();
 
     const handleWebcamBtnClick = async () => {
-
         const cams = await (await navigator.mediaDevices.enumerateDevices()).filter(device => device.kind === 'videoinput');
         setAvailableWebcams(cams);
         // If the user has multiple options then we'll open a picker for them to choose. Otherwise, go ahead and set it
@@ -44,14 +73,20 @@ export default function VideoArea({
                 audio: true            
             });
             // Push tracks from local stream to peer connection
-            stream.getTracks().forEach((track) => peerConnection.addTrack(track));
-    
+            stream.getTracks().forEach((track) => peerConnection.addTrack(track, stream));    
             setLocalStream(stream);
 
-            //TODO... (other stuff)
+            // Pull tracks from peer connection stream, add to this user's UI
+            peerConnection.ontrack = async (event) => {
+                const stream = event.streams[0];
+
+                if (!remoteStream) {
+                    setRemoteStream(new MediaStream(stream.getTracks()));
+                }
+            };
         }
         setupStreams();
-    }, [chosenWebcam, peerConnection]);
+    }, [chosenWebcam, peerConnection, remoteStream]);
 
     // Deal with the possibility of the user having multiple webcams that need to be picked from
     useEffect(() => {
@@ -63,27 +98,35 @@ export default function VideoArea({
         }
     }, [availableWebcams, chosenWebcam]);
 
+    // Signal to the outer component that streams have been initialized
+    useEffect(() => {
+        if (localStream) {
+            setIsWebcamInitialized(true);            
+        }
+    }, [localStream, setIsWebcamInitialized]);
+
     return (
         <>
-            <h2>1. Start your webcam</h2>
+            <SectionHeader>1. Start your webcam</SectionHeader>
 
-            <VideosContainer>
-                <span>
-                    <label>Local stream</label>
+            <VideosContainer localStream={localStream}>
+                <VideoContainer>
+                    <VideoLabel>Local stream</VideoLabel>
                     {/* Muted since we don't want to hear ourselves and it would
                     cause feedback when demoing this via another video calling app */}
-                    <Video srcObject={localStream} muted={true} />
-                </span>
-                <span>
-                    <label>Remote stream</label>                    
-                    <Video srcObject={remoteStream} />
-                </span>
+                    <StyledVideo srcObject={localStream} muted={true} />
+                </VideoContainer>
+                <VideoContainer>
+                    <VideoLabel>Remote stream</VideoLabel>                    
+                    <StyledVideo srcObject={remoteStream} />
+                </VideoContainer>
             </VideosContainer>
 
             <Button 
                 color="primary"
-                variant="outlined"
-                onClick={handleWebcamBtnClick}>
+                //variant="outlined"
+                onClick={handleWebcamBtnClick}
+                disabled={localStream !== null}>
                     Start webcam
             </Button>
 

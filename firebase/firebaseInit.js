@@ -15,10 +15,14 @@ var firebaseConfig = {
     measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
   };
   // Initialize Firebase
-  if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-    firebase.analytics();
-  }
+  // if (!firebase.apps.length) {
+  //   firebase.initializeApp(firebaseConfig);
+  //   firebase.analytics();
+  // }
+
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+
   const firestore = firebase.firestore();
 
   export {
