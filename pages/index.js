@@ -96,8 +96,8 @@ const LogoSeparator = styled.span`
 `;
 
 const SectionSeparator = styled.div`
-  width: 60vw;
-  max-width: 760px;
+  width: 50vw;
+  max-width: 720px;
   border-bottom: 1px solid rgba(0,0,0,0.14);
   margin: 36px 0 20px 0;
 `;
