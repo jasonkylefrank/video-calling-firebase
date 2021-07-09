@@ -173,7 +173,6 @@ export default function InitiateCall({
                         then we need to transform parts of this UI */}
                     <Button
                         color='primary'
-                        disabled={!isWebcamInitialized}
                         onClick={handleStartCallBtnClick}
                         disabled={userRole === userRoles.INITIATOR}
                     >

@@ -107,8 +107,24 @@ export default function VideoArea({
             // Tell parent component we've got the webcam going
             setIsWebcamInitialized(true);
 
-            const el = ReactDOM.findDOMNode(videosContainerRef.current);
-            el.scrollIntoView({block: 'start', behavior: 'smooth'});
+            //// Note: Note sure if this approach is better than window.scrollTo()... it
+            ////       was not working very reliably but maybe it would work more reliably
+            ////       if I wrapped it in a setTimeout() like I am with the window.scrollTo() approach
+            // videosContainerRef.current.scrollIntoView({
+            //     block: 'start',
+            //     behavior: 'smooth'
+            // });
+
+            // Wrapping in a setTimeout because it was not working very reliably without it,
+            //  perhaps because the webcam's stream had not filled the video element yet (thus 
+            //  maybe the webpage did not actually have scrollable content yet).
+            window.setTimeout(() => {
+                window.scrollTo({ 
+                    left: 0, 
+                    top: videosContainerRef.current.offsetTop,
+                    behavior: 'smooth'
+                });
+            }, 300); // Delay time was determined through trial-and-error
         }
     }, [localStream, setIsWebcamInitialized]);
 
