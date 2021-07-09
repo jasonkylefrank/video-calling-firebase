@@ -80,7 +80,13 @@ const Title = styled.h1`
 //  Next.js's <Image> provides some nice things like lazy-loading of your images, etc.
 const LogoImage = styled.img`
   filter: grayscale(1);
-  display: inline-block;  
+  display: inline-block;
+  transition: all 0.4s;
+  
+  &:hover {
+    filter: none;
+    transform: scale(1.25);
+  }
 
   & + & {
     ${'' /* For some reason margin is not taking effect. Something appears to be overriding any margin I set here (setting it to 0) */}
